@@ -43,6 +43,13 @@ const Navigation = ({ user }) => {
                                 Write
                             </NavLink>
                         </div>
+                        <div className="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                            <NavLink
+                                href="/react"
+                                active={usePathname() === '/react'}>
+                                React
+                            </NavLink>
+                        </div>
                     </div>
 
                     {/* Settings Dropdown */}
