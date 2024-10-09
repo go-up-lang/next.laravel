@@ -1,47 +1,56 @@
-"use client";
+'use client'
 
 import Header from '@/app/(app)/Header';
-import { useState } from 'react';
-import axios from '@/lib/axios'; // axios import
+import axios from '@/lib/axios';
+import { useRouter } from 'next/navigation'; // 추가: Next.js의 useRouter 훅 사용
 
 const Write = () => {
-    const [note, setNote] = useState(''); // note 상태 관리
-    const [errors, setErrors] = useState([]); // 오류 상태 관리
+    const router = useRouter(); // 추가: useRouter 훅 선언
+    // CSRF 토큰 요청 함수
+    const csrf = () => axios.get('/sanctum/csrf-cookie');
+    
 
-    const handleSubmit = async (e) => {
-        e.preventDefault(); // 기본 동작 방지
-        await write(note); // note 값을 서버에 전송
+    // 서버에 데이터 전송하는 함수
+    const write = async ({ ...props }) => {
+        await csrf(); // CSRF 보호를 위해 토큰을 가져옴
+
+        axios
+            .post('/write', props) // 서버로 폼 데이터 전송
+            .then(() => {
+                // 성공 시 추가 동작 (필요시 작성)
+                console.log("Form submitted successfully");
+            })
+            .catch(error => {
+                if (error.response.status !== 422) throw error;
+
+                // 에러 처리: 422 상태 코드를 제외한 다른 에러 처리
+                console.error(error.response.data.errors);
+            });
     };
 
-    const csrf = () => axios.get('/sanctum/csrf-cookie'); // CSRF 토큰 요청
+    // 폼 제출 핸들러
+    const submitForm = event => {
+        event.preventDefault();
 
-    const write = async (note) => {
-        await csrf(); // CSRF 토큰 요청
+        const note = event.target.note.value; // 폼에서 note 값을 가져옴
 
-        try {
-            await axios.post('/write', { note }); // note를 서버에 POST 요청
-        } catch (error) {
-            if (error.response.status === 422) {
-                setErrors(error.response.data.errors); // 오류 처리
-            } else {
-                throw error; // 다른 오류는 throw
-            }
-        }
+        write({
+            note,
+        });
     };
-
+    
     return (
         <>
             <Header title="Write" />
             <div className='p-5'>
                 <div className='text-3xl mb-5'>글 작성하기</div>
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={submitForm}>
                     <input
                         className='w-full rounded h-24 mb-5'
                         type='text'
                         id='note'
                         name='note'
-                        value={note} 
-                        onChange={(e) => setNote(e.target.value)} // input 변화 감지
+                        
                     />
                     <button
                         type="submit" 
@@ -49,13 +58,7 @@ const Write = () => {
                     >
                         글작성
                     </button>
-                    {errors.length > 0 && (
-                        <div className="text-red-500">
-                            {errors.map((error, index) => (
-                                <div key={index}>{error}</div>
-                            ))}
-                        </div>
-                    )}
+                    
                 </form>
             </div>
         </>
