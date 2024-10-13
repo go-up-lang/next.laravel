@@ -45,9 +45,9 @@ const Navigation = ({ user }) => {
                         </div>
                         <div className="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
                             <NavLink
-                                href="/react"
-                                active={usePathname() === '/react'}>
-                                React
+                                href="/note"
+                                active={usePathname() === '/note'}>
+                                Note
                             </NavLink>
                         </div>
                     </div>

@@ -18,9 +18,7 @@ const Write = () => {
             .post('/write', props) // 서버로 폼 데이터 전송
             .then(() => {
                 // 성공 시 추가 동작 (필요시 작성)
-                console.log("Form submitted successfully");
-                 
-                router.push('/react');
+                router.push('/note');
             })
             .catch(error => {
                 if (error.response.status !== 422) throw error;
